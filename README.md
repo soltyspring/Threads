@@ -1,10 +1,4 @@
-# Threads 이모지 자동 게시기
-
-## 설치
-
-```powershell
-py -m pip install requests
-```
+# Threads 자동화 프로그램
 
 ## 사용
 
@@ -12,7 +6,6 @@ py -m pip install requests
 
 ```powershell
 $env:THREADS_ACCESS_TOKEN = "발급받은_토큰"
-py .\threads_emoji_poster.py "😀 🌈 ✨"
+py .\threads_emoji_poster.py "업로드 할 게시글의 메시지"
 ```
-
-인자를 생략하면 `😀✨`를 게시합니다. 토큰은 코드나 저장소에 넣지 마세요.
+토큰은 코드나 저장소에 넣지 마세요.
