@@ -1,0 +1,149 @@
+{
+  "observed_on": "2026-09-19",
+  "method": "Public Threads post UI; views visually verified in page-header screenshots, reactions read from rendered UI. Abbreviated counts are approximate. No unique-user conversion inference.",
+  "posts": [
+    {
+      "account": "menna_mmdoh_",
+      "id": "DLx7FC-gpDE",
+      "theme": "혼합 특수문자",
+      "views": 5587000,
+      "likes": 2000,
+      "reposts": 558,
+      "shares": 380,
+      "distribution_per_10000_views": 1.68,
+      "url": "https://www.threads.com/@menna_mmdoh_/post/DLx7FC-gpDE"
+    },
+    {
+      "account": "_mizuki_chen_s",
+      "id": "DMecxjlyUZk",
+      "theme": "별밤·스포일러 텍스트 아트",
+      "views": 5381000,
+      "likes": 100000,
+      "reposts": 10000,
+      "shares": 5300,
+      "distribution_per_10000_views": 28.43,
+      "url": "https://www.threads.com/@_mizuki_chen_s/post/DMecxjlyUZk"
+    },
+    {
+      "account": "liliey.template",
+      "id": "DcTrQkbCYEB",
+      "theme": "리본 장식 조합",
+      "views": 4680000,
+      "likes": 1100,
+      "reposts": 268,
+      "shares": 463,
+      "distribution_per_10000_views": 1.56,
+      "url": "https://www.threads.com/@liliey.template/post/DcTrQkbCYEB"
+    },
+    {
+      "account": "liliey.template",
+      "id": "DGt6oXsSVOQ",
+      "theme": "짧은 표정 모음",
+      "views": 3815000,
+      "likes": 31000,
+      "reposts": 6100,
+      "shares": 2200,
+      "distribution_per_10000_views": 21.76,
+      "url": "https://www.threads.com/@liliey.template/post/DGt6oXsSVOQ"
+    },
+    {
+      "account": "cute_text_symbols",
+      "id": "DcRACZHjyFw",
+      "theme": "꽃·하트 혼합",
+      "views": 1721000,
+      "likes": 343,
+      "reposts": 79,
+      "shares": 119,
+      "distribution_per_10000_views": 1.15,
+      "url": "https://www.threads.com/@cute_text_symbols/post/DcRACZHjyFw"
+    },
+    {
+      "account": "_mizuki_chen_s",
+      "id": "Dcl5H4LksQC",
+      "theme": "음악 장식",
+      "views": 1234000,
+      "likes": 913,
+      "reposts": 258,
+      "shares": 151,
+      "distribution_per_10000_views": 3.31,
+      "url": "https://www.threads.com/@_mizuki_chen_s/post/Dcl5H4LksQC"
+    },
+    {
+      "account": "iim_miyu",
+      "id": "DcoxYMiEoIm",
+      "theme": "고양이 모음",
+      "views": 750000,
+      "likes": 458,
+      "reposts": 147,
+      "shares": 61,
+      "distribution_per_10000_views": 2.77,
+      "url": "https://www.threads.com/@iim_miyu/post/DcoxYMiEoIm"
+    },
+    {
+      "account": "cute.__.emoji",
+      "id": "DdX1iGWk_k_",
+      "theme": "표정·기호 혼합",
+      "views": 570000,
+      "likes": 225,
+      "reposts": 62,
+      "shares": 49,
+      "distribution_per_10000_views": 1.95,
+      "url": "https://www.threads.com/@cute.__.emoji/post/DdX1iGWk_k_"
+    },
+    {
+      "account": "cute_text_symbols",
+      "id": "DbUfst6DyPs",
+      "theme": "짧은 별·장식 기호",
+      "views": 500000,
+      "likes": 1000,
+      "reposts": 217,
+      "shares": 116,
+      "distribution_per_10000_views": 6.66,
+      "url": "https://www.threads.com/@cute_text_symbols/post/DbUfst6DyPs"
+    },
+    {
+      "account": "_mizuki_chen",
+      "id": "DKsLaeeNtGp",
+      "theme": "리본 기호 사전",
+      "views": 460000,
+      "likes": 11000,
+      "reposts": 2400,
+      "shares": 1200,
+      "distribution_per_10000_views": 78.26,
+      "url": "https://www.threads.com/@_mizuki_chen/post/DKsLaeeNtGp"
+    },
+    {
+      "account": "_mizuki_chen_s",
+      "id": "DdDjRVykq5b",
+      "theme": "별 장식 조합",
+      "views": 330000,
+      "likes": 918,
+      "reposts": 181,
+      "shares": 113,
+      "distribution_per_10000_views": 8.91,
+      "url": "https://www.threads.com/@_mizuki_chen_s/post/DdDjRVykq5b"
+    },
+    {
+      "account": "cute.__.emoji",
+      "id": "DdX1hWZE2y3",
+      "theme": "복잡한 캐릭터 표정",
+      "views": 37000,
+      "likes": 41,
+      "reposts": 9,
+      "shares": 3,
+      "distribution_per_10000_views": 3.24,
+      "url": "https://www.threads.com/@cute.__.emoji/post/DdX1hWZE2y3"
+    },
+    {
+      "account": "cute.__.emoji",
+      "id": "DdX1sv7E_jv",
+      "theme": "Ocean 기호 모음",
+      "views": 1800,
+      "likes": 18,
+      "reposts": 2,
+      "shares": 1,
+      "distribution_per_10000_views": 16.67,
+      "url": "https://www.threads.com/@cute.__.emoji/post/DdX1sv7E_jv"
+    }
+  ]
+}
