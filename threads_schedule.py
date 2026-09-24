@@ -63,11 +63,23 @@ def export_json(db, path=JSON_QUEUE):
     rows = db.execute('SELECT id,due,theme,text,state,container_id,post_id,error,updated FROM jobs ORDER BY id').fetchall()
     payload = {
         'account': EXPECTED_USER,
-        'interval_hours': 2,
+        'interval_hours': None,
         'post_count': len(rows),
         'generated_at': now_utc().isoformat(),
         'jobs': [dict(row) for row in rows],
     }
+    pending = [row for row in rows if row['state'] == 'pending']
+    if len(pending) > 1:
+        intervals = {(datetime.fromisoformat(b['due'])-datetime.fromisoformat(a['due'])).total_seconds()/3600
+                     for a,b in zip(pending,pending[1:])}
+        if len(intervals) == 1:
+            payload['interval_hours'] = intervals.pop()
+    if db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='experiment_jobs'").fetchone():
+        experiments = {r['job_id']:dict(campaign=r['campaign'], **json.loads(r['metadata']))
+                       for r in db.execute('SELECT * FROM experiment_jobs')}
+        for job in payload['jobs']:
+            if job['id'] in experiments:
+                job['experiment'] = experiments[job['id']]
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix('.json.tmp')
     temporary.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
