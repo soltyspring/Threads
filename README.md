@@ -1,5 +1,17 @@
 # Threads 자동화 프로그램
 
+## 천체 이미지 캐러셀 게시
+
+`assets/astro/carousel/`의 10장 이미지를 공개된 `image` 브랜치 URL에서 불러와 한 캐러셀로 게시합니다.
+`.env`의 계정을 지정하고 설명문을 전달합니다. 이미지는 AI 생성 장면이므로 게시물에 이를 명시하세요.
+
+```powershell
+py .\threads_carousel_poster.py --account lovely --caption "Which of these 10 impossible night skies would you step into first? 🌌 Pick 1–10. AI-generated scenes—not real astrophotography."
+```
+
+게시할 계정 토큰(`THREADS_ACCESS_TOKEN_LOVELY` 또는 `THREADS_ACCESS_TOKEN_CUTE`)이 필요합니다.
+게시물 미디어 컨테이너가 처리 완료된 것을 확인한 뒤 한 번만 게시합니다.
+
 ## 1시간 간격 실험 캠페인
 
 `experimental_week.py`는 12개 주제 × 7가지 비교 × A/B 2개 = 168개 게시물을 만듭니다.
