@@ -53,3 +53,18 @@ API 실패 또는 게시 응답 불명확 상태에서는 큐를 중단합니다
 Linux의 `python3-venv` 패키지가 필요하며, 설치 스크립트가 venv 관련 오류로 종료하면 서버에서 해당 패키지를 설치해야 합니다.
 
 토큰은 코드나 저장소에 넣지 마세요.
+
+## 게시글 분석 DB
+
+`cute.__.emoji` 계정의 모든 게시글과 현재 성과 지표를 SQLite에 누적합니다.
+
+```bash
+.venv/bin/python threads_analytics.py sync --account cute
+.venv/bin/python threads_analytics.py summary
+```
+
+데이터베이스는 `runtime/threads_analytics.sqlite3`에 생성됩니다. `posts`에는 게시글 본문과
+게시 시각·링크가 한 번씩 저장되고, `insight_snapshots`에는 수집 시점별 조회수·좋아요·답글·
+리포스트·인용·공유 수가 계속 추가됩니다. `latest_post_insights` 뷰를 사용하면 각 게시글의
+최신 지표를 바로 분석할 수 있습니다. 토큰에 `threads_basic`과 `threads_manage_insights`
+권한이 필요합니다.
