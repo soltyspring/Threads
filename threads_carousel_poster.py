@@ -20,19 +20,31 @@ TOKEN_ENV_BY_ACCOUNT = {
 }
 ASSET_BASE_URL = (
     "https://raw.githubusercontent.com/soltyspring/Threads/image/"
-    "assets/astro/carousel"
+    "assets/astro/night-10"
 )
 IMAGE_FILES = [
-    "01_alpine_lake_dock_milky_way.png",
-    "02_sea_arch_milky_way.png",
-    "03_lone_tree_reflection_milky_way.png",
-    "04_aurora_coast_milky_way.png",
-    "05_autumn_forest_milky_way.png",
-    "06_alpine_stream_waterfall_milky_way.png",
-    "07_canyon_road_milky_way.png",
-    "08_summit_overlook_milky_way.png",
-    "09_medieval_stone_alley_milky_way.png",
-    "10_european_village_church_milky_way.png",
+    "01_milky_way_rocky_coast_long_exposure.jpg",
+    "02_aurora_snowfield_tiny_cabin.jpg",
+    "03_lone_tree_blue_night_sky.jpg",
+    "04_comet_over_mountain_ridge.jpg",
+    "05_circular_star_trails_lake_reflection.jpg",
+    "06_magellanic_clouds_coastal_night.jpg",
+    "07_moonlit_clouds_and_mountains.jpg",
+    "08_milky_way_through_clouds_coast.jpg",
+    "09_blue_twilight_lake_and_mountains.jpg",
+    "10_starlight_reflection_dark_sea.jpg",
+]
+ALT_TEXTS = [
+    "The Milky Way above a rocky coast at night.",
+    "Aurora lights above a snowy field and a small cabin.",
+    "A lone tree silhouetted under a deep blue starry sky.",
+    "A bright comet above a mountain ridge.",
+    "Circular star trails reflected in a still lake.",
+    "The Milky Way over a quiet coastal landscape.",
+    "Clouds and mountain silhouettes beneath a moonlit sky.",
+    "The Milky Way partly veiled by clouds above the coast.",
+    "Blue twilight over a lake and distant mountains.",
+    "Starlight reflected across a dark sea.",
 ]
 
 
@@ -81,7 +93,7 @@ def publish_carousel(account: str, caption: str) -> dict:
     profile = profile_response.json()
 
     children = []
-    for index, filename in enumerate(IMAGE_FILES, start=1):
+    for index, (filename, alt_text) in enumerate(zip(IMAGE_FILES, ALT_TEXTS), start=1):
         item = api_post(
             f"{profile['id']}/threads",
             token,
@@ -89,7 +101,7 @@ def publish_carousel(account: str, caption: str) -> dict:
                 "media_type": "IMAGE",
                 "image_url": f"{ASSET_BASE_URL}/{filename}",
                 "is_carousel_item": "true",
-                "alt_text": f"AI-generated cosmic night-sky landscape, image {index} of 10.",
+                "alt_text": alt_text,
             },
         )
         children.append(item["id"])
@@ -101,7 +113,13 @@ def publish_carousel(account: str, caption: str) -> dict:
     carousel = api_post(
         f"{profile['id']}/threads",
         token,
-        {"media_type": "CAROUSEL", "children": ",".join(children), "text": caption},
+        {
+            "media_type": "CAROUSEL",
+            "children": ",".join(children),
+            "text": caption,
+            "text_entities": '[{"entity_type":"SPOILER","offset":4,"length":2}]',
+            "is_spoiler_media": "true",
+        },
     )
     wait_until_ready(carousel["id"], token)
     published = api_post(
