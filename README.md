@@ -1,5 +1,25 @@
 # Threads 자동화 프로그램
 
+## 1시간 간격 실험 캠페인
+
+`experimental_week.py`는 12개 주제 × 7가지 비교 × A/B 2개 = 168개 게시물을 만듭니다.
+주제당 하루 2개씩, 1시간 간격으로 7일 운영합니다. 첫 예약은 최소 10분 이후의 다음 정시입니다.
+길이(6/16개), 열 수(2/4열), 간격, 제목 유무, 순서, 빈 줄, 기호 복잡도를 비교합니다.
+기호 복잡도는 글꼴 크기가 아니며 서로 다른 기호 집합을 사용하므로 순수한 크기 효과로 해석하지 않습니다.
+각 주제의 비교 쌍을 같은 날 배치하고 A/B 순서와 시간을 분산합니다. 단기간 탐색 실험이며
+이전 2시간 간격 캠페인과는 빈도도 달라져 직접적인 인과 비교가 불가능합니다.
+
+```bash
+.venv/bin/python experimental_week.py --replace
+```
+
+이 명령은 기존 DB를 `runtime/backups/`에 백업한 뒤 **pending 예약을 삭제하고 교체**합니다.
+게시 이력은 유지하고 `uncertain`/`failed`는 `archived_uncertain`/`archived_failed`로 보존하며
+해당 글을 재시도하지 않습니다. 진행 중인 게시가 있으면 교체를 거부합니다.
+재실행하면 다시 예약을 교체하므로 상태 조회 목적으로 실행하지 마세요.
+실험 조건과 예약 시각은 `runtime/experiment_week.json`, SQLite `experiment_jobs`,
+`runtime/schedule.json`에 저장합니다. 실험 조건은 게시물 본문에 표시하지 않습니다.
+
 ## 설치
 
 ```powershell
