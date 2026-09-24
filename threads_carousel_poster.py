@@ -19,7 +19,7 @@ TOKEN_ENV_BY_ACCOUNT = {
     "lovely": "THREADS_ACCESS_TOKEN_LOVELY",
 }
 ASSET_BASE_URL = (
-    "https://raw.githubusercontent.com/soltyspring/Threads/image/"
+    "https://raw.githubusercontent.com/soltyspring/Threads/refs/heads/image/"
     "assets/astro/night-10"
 )
 IMAGE_FILES = [
