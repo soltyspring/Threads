@@ -49,5 +49,23 @@ class ApplyTests(unittest.TestCase):
         with self.assertRaises(ValueError): a.apply(self.db,plan,self.now,self.root/'backups',{2:{'status':'IN_PROGRESS'}})
         self.assertEqual(self.db.execute('SELECT state FROM jobs WHERE id=2').fetchone()[0],'uncertain')
 
+    def test_topup_appends_missing_hourly_slots(self):
+        db=a.s.connect(self.root/'topup.sqlite3')
+        db.execute('CREATE TABLE experiment_jobs(job_id INTEGER PRIMARY KEY,campaign TEXT,metadata TEXT)')
+        for i in range(1,4):
+            due=self.now+timedelta(hours=i)
+            db.execute('INSERT INTO jobs(id,due,theme,text,state) VALUES(?,?,?,?,?)',
+                       (i,due.isoformat(),'old',f'topup-old{i}','pending'))
+        db.commit()
+        plan=a.prepare_topup(db,self.now,total_hours=5)
+        self.assertEqual(len(plan['posts']),2)
+        self.assertEqual(plan['posts'][0]['due'],(self.now+timedelta(hours=4)).isoformat())
+        backup=a.apply_topup(db,plan,self.now,self.root/'backups')
+        self.assertTrue((Path(backup)/'schedule.sqlite3').exists())
+        self.assertEqual(db.execute('SELECT COUNT(*) FROM jobs').fetchone()[0],5)
+        self.assertEqual(db.execute('SELECT MIN(id),MAX(id) FROM jobs WHERE id>3').fetchone()[:],(4,5))
+        self.assertEqual(db.execute('SELECT COUNT(*) FROM experiment_jobs').fetchone()[0],2)
+        db.close()
+
 
 if __name__=='__main__': unittest.main()
