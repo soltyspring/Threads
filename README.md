@@ -20,6 +20,28 @@
 실험 조건과 예약 시각은 `runtime/experiment_week.json`, SQLite `experiment_jobs`,
 `runtime/schedule.json`에 저장합니다. 실험 조건은 게시물 본문에 표시하지 않습니다.
 
+### 경쟁 계정 포맷 재해석 캠페인
+
+`apply_competitor_campaign.py`는 공개 계정에서 관찰한 형식만 참고해 새 조합을 만들고,
+기존 게시글을 복사하지 않습니다. 짧음·중간·김 길이, 제목 유무, 열 수, 간격, 기호 조합을
+12개 주제와 4개 실험군으로 분산합니다. 각 글에는 실제 문자 수·UTF-16 길이·행 수·최대 행 폭·
+공백 비율이 JSON 메타데이터로 남아 길이와 배치를 따로 분석할 수 있습니다.
+
+```bash
+.venv/bin/python apply_competitor_campaign.py plan
+.venv/bin/python apply_competitor_campaign.py apply
+```
+
+`plan`은 변경 전에 현재 큐 해시와 계획 JSON을 저장하고, `apply`는 SQLite 백업을 만든 뒤
+예약 텍스트만 교체합니다. 이미 게시된 글은 다시 올리지 않으며, `uncertain`/`failed`는
+API 상태를 확인한 뒤 재시도하지 않습니다. 일주일(168시간)보다 남은 pending 슬롯이 적으면
+다음 명령으로 마지막 예약 뒤에 부족한 시간만 추가할 수 있습니다.
+
+```bash
+.venv/bin/python apply_competitor_campaign.py topup-plan
+.venv/bin/python apply_competitor_campaign.py topup-apply
+```
+
 ## 설치
 
 ```powershell
@@ -45,7 +67,7 @@ py .\threads_emoji_poster.py --account lovely "💖 ✨"
 `--account`를 생략하면 `cute` 계정을 사용하고, 게시글을 생략하면 `😀✨`를 게시합니다.
 `.env`는 `.gitignore`에 등록되어 있으므로 저장소에 올라가지 않습니다.
 
-## Ubuntu: 2시간 간격, 7일 예약
+## Ubuntu: cron 기반 예약 실행
 
 서버 프로젝트 폴더의 `.env`에 `THREADS_ACCESS_TOKEN_CUTE`를 설정한 뒤 실행합니다.
 
@@ -53,7 +75,8 @@ py .\threads_emoji_poster.py --account lovely "💖 ✨"
 bash install_schedule.sh
 ```
 
-설정 완료 약 2시간 뒤 첫 게시, 이후 2시간마다 총 84개를 게시합니다.
+cron은 매분 큐를 확인하고, 큐에 기록된 시각에만 게시합니다. 현재 실험 큐는 1시간 간격으로
+7일(168개 pending 슬롯) 구성되어 있습니다.
 인증된 계정이 정확히 `cute.__.emoji`인지 확인하며 lovely 계정은 사용하지 않습니다.
 기존 crontab은 보존하고 전용 항목 하나를 추가합니다. cron은 매분 예약 큐를 확인하며,
 84개가 끝나면 더 이상 게시하지 않습니다. 서버 시간대와 무관하게 UTC로 저장하고 상태는 한국시간으로 표시합니다.
