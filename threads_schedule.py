@@ -3,10 +3,12 @@ import argparse
 import json
 import os
 import sqlite3
+import time
+import requests
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from threads_emoji_poster import get_profile, create_container, publish_container
+from threads_emoji_poster import BASE_URL, get_profile, create_container, publish_container
 from weekly_content import build_posts
 
 ROOT = Path(__file__).resolve().parent
@@ -18,6 +20,23 @@ EXPECTED_USER = 'cute.__.emoji'
 
 def now_utc():
     return datetime.now(timezone.utc)
+
+
+def wait_for_container(container_id, token):
+    """Bounded GET-only readiness check, never retry a publication POST."""
+    for attempt in range(6):
+        response = requests.get(f'{BASE_URL}/{container_id}',
+                                params={'fields':'id,status'},
+                                headers={'Authorization':f'Bearer {token}'}, timeout=15)
+        response.raise_for_status()
+        state = response.json().get('status')
+        if state == 'FINISHED':
+            return
+        if state != 'IN_PROGRESS':
+            raise ValueError('Container is not ready for a new publication')
+        if attempt < 5:
+            time.sleep(5)
+    raise TimeoutError('Container preparation exceeded polling limit')
 
 
 def token_and_profile():
@@ -114,6 +133,7 @@ def run_due(db, current=None):
         token, profile = token_and_profile()
         container = create_container(row['text'], token, profile['id'])
         update(db, row['id'], container_id=container)
+        wait_for_container(container, token)
         publish_started = True
         post_id = publish_container(container, token, profile['id'])
         update(db, row['id'], state='published', post_id=post_id)
