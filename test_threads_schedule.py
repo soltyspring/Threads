@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from datetime import timedelta
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 import threads_schedule as s
 from weekly_content import build_posts
@@ -11,6 +11,13 @@ from weekly_content import build_posts
 class ScheduleTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
+        original_export=s.export_json
+        self.export_patch=patch.object(s,'export_json',side_effect=lambda db:original_export(db,Path(self.temp.name)/'schedule.json'))
+        self.export_patch.start()
+        self.addCleanup(self.export_patch.stop)
+        self.ready_patch=patch.object(s,'wait_for_container')
+        self.ready_patch.start()
+        self.addCleanup(self.ready_patch.stop)
         self.db = s.connect(Path(self.temp.name) / 'queue.db')
         self.first = s.now_utc() + timedelta(hours=2)
         s.initialize(self.db, self.first)
@@ -30,6 +37,11 @@ class ScheduleTests(unittest.TestCase):
         with patch.object(s, 'token_and_profile') as auth:
             self.assertEqual(s.run_due(self.db, self.first-timedelta(seconds=1)), 'idle')
             auth.assert_not_called()
+
+    def test_readiness_failure_never_publishes(self):
+        with patch.object(s,'token_and_profile',return_value=('secret',{'id':'123'})), patch.object(s,'create_container',return_value='456'), patch.object(s,'wait_for_container',side_effect=TimeoutError), patch.object(s,'publish_container') as publish:
+            self.assertEqual(s.run_due(self.db,self.first),'failed')
+            publish.assert_not_called()
 
     def test_success_never_repeats(self):
         with patch.object(s,'token_and_profile',return_value=('secret',{'id':'123'})), patch.object(s,'create_container',return_value='456') as create, patch.object(s,'publish_container',return_value='789') as publish:
@@ -69,6 +81,18 @@ class ScheduleTests(unittest.TestCase):
             auth.assert_not_called()
             self.assertEqual(self.db.execute("SELECT COUNT(*) FROM jobs WHERE state='pending'").fetchone()[0],0)
 
+
+class ReadinessTests(unittest.TestCase):
+    def test_waits_until_finished(self):
+        responses=[Mock(json=Mock(return_value={'status':v})) for v in ['IN_PROGRESS','FINISHED']]
+        with patch.object(s.requests,'get',side_effect=responses) as get, patch.object(s.time,'sleep') as sleep:
+            s.wait_for_container('123','secret')
+            self.assertEqual(get.call_count,2)
+            sleep.assert_called_once_with(5)
+
+    def test_already_published_is_not_republished(self):
+        with patch.object(s.requests,'get',return_value=Mock(json=Mock(return_value={'status':'PUBLISHED'}))):
+            with self.assertRaises(ValueError): s.wait_for_container('123','secret')
 
 if __name__ == '__main__':
     unittest.main()
