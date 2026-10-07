@@ -20,6 +20,40 @@
 `runtime/schedule.json` 및 SQLite에 저장합니다. Instagram 유입 비율은 사용자 제공 값만 사용합니다.
 자세한 근거와 한계는 `research/monthly_strategy_2026-10-07.md`에 기록했습니다.
 
+## lovely: Instagram 노출 중심 30일 실험
+
+`lovely_lab.py`는 `lovely._.symbol` 계정에 30일간 매시간 720개를 예약합니다.
+cute와 별도 DB·JSON·토큰으로 동작하며 기존 cute 예약은 변경하지 않습니다.
+매일 10개 A/B 쌍과 4개 탐색형을 배정합니다. 길이·열·간격·빈 줄·제목·순서·들여쓰기·
+줄 폭 및 혼합 구성을 비교하며, 비교 쌍 안에서는 같은 기호를 의도적으로 사용합니다.
+lovely는 매시 30분, A/B는 12시간 간격으로 배치하고 선행 순서를 번갈아 바꿉니다.
+
+```bash
+.venv/bin/python threads_analytics.py sync --account lovely --db runtime/lovely_analytics.sqlite3
+.venv/bin/python lovely_lab.py check
+.venv/bin/python lovely_lab.py plan
+.venv/bin/python lovely_lab.py apply
+.venv/bin/python lovely_lab.py status
+```
+
+`plan`/`apply`는 cron 등록 자체를 하지 않습니다. Ubuntu cron의 매분 실행 항목에서
+`lovely_lab.py run`을 실행해야 하며, 720개가 끝나면 더 이상 게시하지 않습니다.
+계획은 `runtime/lovely_experiment_plan.json`, 실행 큐는 `runtime/lovely_schedule.json` 및
+`runtime/lovely_schedule.sqlite3`입니다. 적용 전 백업과 계정/큐 변경 검사를 수행합니다.
+실패나 응답 불명확 시 lovely 큐만 중단하며 게시 POST를 자동 재시도하지 않습니다.
+
+목표 지표는 **Instagram 조회수와 유입 비중**입니다. 현재 API 수집의 총조회수를 Instagram
+조회수로 간주하지 않습니다. 네이티브 인사이트의 출처별 값을 별도로 저장할 수 있습니다.
+
+```bash
+.venv/bin/python lovely_lab.py observe --post-id POST_ID --views 100000 --instagram-percent 98.24 --follows 3 --approximate
+```
+
+`POST_ID`는 실제 게시 완료된 lovely 예약 글의 ID로 교체하세요. `--approximate`는 화면의
+반올림된 수치를 입력할 때 사용합니다. 같은 게시 후 24/72시간에 기록해야 비교가 가능합니다.
+Instagram 추천 노출은 보장하지 않으며 계정의 다른 앱 추천 허용 설정도 확인해야 합니다.
+설계와 평가 한계는 `research/lovely_instagram_lab_2026-10-07.md`에 기록했습니다.
+
 ## 1시간 간격 실험 캠페인
 
 `experimental_week.py`는 12개 주제 × 7가지 비교 × A/B 2개 = 168개 게시물을 만듭니다.
@@ -95,11 +129,12 @@ py .\threads_emoji_poster.py --account lovely "💖 ✨"
 bash install_schedule.sh
 ```
 
-cron은 매분 큐를 확인하고, 큐에 기록된 시각에만 게시합니다. 현재 실험 큐는 1시간 간격으로
-7일(168개 pending 슬롯) 구성되어 있습니다.
-인증된 계정이 정확히 `cute.__.emoji`인지 확인하며 lovely 계정은 사용하지 않습니다.
-기존 crontab은 보존하고 전용 항목 하나를 추가합니다. cron은 매분 예약 큐를 확인하며,
-84개가 끝나면 더 이상 게시하지 않습니다. 서버 시간대와 무관하게 UTC로 저장하고 상태는 한국시간으로 표시합니다.
+초기 설치는 2시간 간격 7일(84개) 큐를 만들며, 기존 큐가 있으면 덮어쓰지 않습니다.
+이후 월간/실험 캠페인을 적용하면 해당 계획의 간격과 개수가 사용됩니다.
+`threads_schedule.py`는 인증 계정이 정확히 `cute.__.emoji`인지 확인합니다.
+lovely는 위의 별도 `lovely_lab.py` 실행 항목을 사용합니다.
+기존 crontab은 보존하며 매분 큐를 확인하고 예정 시각에만 게시합니다.
+등록된 큐가 끝나면 더 이상 게시하지 않습니다. UTC로 저장하고 상태는 한국시간으로 표시합니다.
 
 ```bash
 .venv/bin/python threads_schedule.py status
