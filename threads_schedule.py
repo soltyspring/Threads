@@ -1,4 +1,4 @@
-"""Finite cute-only queue, run once per minute by cron. Never retry an uncertain publish."""
+"""Finite queues with cute defaults and explicit per-account publication callbacks."""
 import argparse
 import json
 import os
@@ -78,10 +78,10 @@ def initialize(db, first, posts=None):
         raise
 
 
-def export_json(db, path=JSON_QUEUE):
+def export_json(db, path=JSON_QUEUE, account=EXPECTED_USER):
     rows = db.execute('SELECT id,due,theme,text,state,container_id,post_id,error,updated FROM jobs ORDER BY id').fetchall()
     payload = {
-        'account': EXPECTED_USER,
+        'account': account,
         'interval_hours': None,
         'post_count': len(rows),
         'generated_at': now_utc().isoformat(),
@@ -105,14 +105,14 @@ def export_json(db, path=JSON_QUEUE):
     temporary.replace(path)
 
 
-def update(db, job_id, **fields):
+def update(db, job_id, exporter=None, **fields):
     fields['updated'] = now_utc().isoformat()
     db.execute('UPDATE jobs SET ' + ','.join(f'{k}=?' for k in fields) + ' WHERE id=?', (*fields.values(), job_id))
     db.commit()
-    export_json(db)
+    (exporter or export_json)(db)
 
 
-def run_due(db, current=None):
+def run_due(db, current=None, token_provider=None, exporter=None):
     current = current or now_utc()
     db.execute('BEGIN IMMEDIATE')
     # A crash or an ambiguous network response blocks the queue for manual review.
@@ -130,28 +130,28 @@ def run_due(db, current=None):
     db.commit()
     publish_started = False
     try:
-        token, profile = token_and_profile()
+        token, profile = (token_provider or token_and_profile)()
         container = create_container(row['text'], token, profile['id'])
-        update(db, row['id'], container_id=container)
+        update(db, row['id'], exporter=exporter, container_id=container)
         wait_for_container(container, token)
         publish_started = True
         post_id = publish_container(container, token, profile['id'])
-        update(db, row['id'], state='published', post_id=post_id)
+        update(db, row['id'], exporter=exporter, state='published', post_id=post_id)
         print(json.dumps({'job':row['id'],'state':'published','post_id':post_id}))
         return 'published'
     except Exception as exc:
         # Do not persist response bodies/URLs or exception strings containing credentials.
         state = 'uncertain' if publish_started else 'failed'
-        update(db, row['id'], state=state, error=type(exc).__name__)
+        update(db, row['id'], exporter=exporter, state=state, error=type(exc).__name__)
         print(json.dumps({'job':row['id'],'state':state,'error':type(exc).__name__}))
         return state
 
 
-def status(db):
+def status(db, account=EXPECTED_USER):
     counts = dict(db.execute('SELECT state,COUNT(*) FROM jobs GROUP BY state').fetchall())
     bounds = db.execute('SELECT MIN(due),MAX(due) FROM jobs').fetchone()
     times = [datetime.fromisoformat(v).astimezone(KST).isoformat() if v else None for v in bounds]
-    return {'account':EXPECTED_USER,'counts':counts,'first_kst':times[0],'last_kst':times[1]}
+    return {'account':account,'counts':counts,'first_kst':times[0],'last_kst':times[1]}
 
 
 def main():
