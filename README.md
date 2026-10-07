@@ -1,5 +1,25 @@
 # Threads 자동화 프로그램
 
+## 최근 2주 분석과 30일 캠페인
+
+최근 14일에 작성된 글의 누적 지표와 게시 후 24/72시간 근처에 실제 저장된 스냅샷을 비교합니다.
+완료된 최신 수집만 사용하며 누락 지표를 0으로 처리하지 않습니다.
+
+```bash
+.venv/bin/python campaign_analysis.py
+.venv/bin/python monthly_campaign.py plan
+.venv/bin/python monthly_campaign.py apply
+```
+
+`plan`은 30일 × 24개 = 720개의 원본 조합을 생성합니다. 확장형 50%, 혼합형 33.3%, 짧은 응용형 16.7%이며
+최근 결과와 사용자 제공 Instagram 유입 사례를 참고한 탐색 전략입니다.
+기존 게시물·예약 이력과 제목/공백/순서만 다른 재탕을 제외하고, 기호 집합과 5글자 조각 유사도도 검사합니다.
+개별 공통 기호 자체는 재사용됩니다. `apply`는 계정 확인과 DB 백업 후 기존 pending을 cancelled로 보존하고
+새로운 1시간 간격 예약만 등록합니다. 실제 게시를 즉시 실행하지 않으며 cron이 예정 시각에 처리합니다.
+분석은 `runtime/monthly_analysis.json`, 계획은 `runtime/monthly_campaign_plan.json`, 실행 큐는
+`runtime/schedule.json` 및 SQLite에 저장합니다. Instagram 유입 비율은 사용자 제공 값만 사용합니다.
+자세한 근거와 한계는 `research/monthly_strategy_2026-10-07.md`에 기록했습니다.
+
 ## 1시간 간격 실험 캠페인
 
 `experimental_week.py`는 12개 주제 × 7가지 비교 × A/B 2개 = 168개 게시물을 만듭니다.
